@@ -6,6 +6,7 @@
 import requests
 import re
 import datetime
+import pytz
 
 
 def printprotintelligencebanner():
@@ -61,8 +62,17 @@ def check_email(email):
 
         timestamp = extract_timestamp(response.text)
         if timestamp is not None:
-            creation_date = datetime.datetime.utcfromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
-            print("PGP Key Date and Creation Time:", creation_date)
+            # UTC Zeit mit Zeitzone
+            utc_time = datetime.datetime.utcfromtimestamp(timestamp).replace(tzinfo=pytz.UTC)
+            utc_time_str = utc_time.strftime('%Y-%m-%d %H:%M:%S %Z%z')
+            
+            # Berliner Zeit
+            berlin_tz = pytz.timezone('Europe/Berlin')
+            berlin_time = utc_time.astimezone(berlin_tz)
+            berlin_time_str = berlin_time.strftime('%Y-%m-%d %H:%M:%S %Z%z')
+            
+            print("PGP Key Date and Creation Time (UTC):", utc_time_str)
+            print("PGP Key Date and Creation Time (Local):", berlin_time_str)
         else:
             print("Problem parsing Key Creation Date.")
 
